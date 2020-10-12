@@ -77,7 +77,7 @@ end;
 procedure ToFirstRoom();
 begin
   Engine.LoadZone('maelstromdota_witch.zmap');
-  Engine.SetTarget(31116); // Catacomb Gatekeeper
+  Engine.SetTarget(31117); // Catacomb Gatekeeper
   delay(1000);
   Engine.DlgOpen();
   delay(1000);
@@ -93,9 +93,9 @@ begin
   delay(100);
   Engine.UseSkill(60); // Fake Death
   delay(1000);
-  if not (User.Buffs.ByID(1428, Buff)) then Engine.UseSkill(60); // Если сбили Fake Death
+  if not (User.Buffs.ByID(60, Buff)) then Engine.UseSkill(60); // Если сбили Fake Death
   delay(7000); // Подождать пока моб уйдет
-  if (User.Buffs.ByID(1428, Buff)) then Engine.UseSkill(60); // Fake Death
+  if (User.Buffs.ByID(60, Buff)) then Engine.UseSkill(60); // Fake Death
   delay(100);
   Engine.MoveTo(140840,85944,-5424);
   Engine.MoveTo(140792,86776,-5424);
@@ -103,9 +103,9 @@ begin
   delay(100);
   Engine.UseSkill(60); // Fake Death
   delay(1000);
-  if not (User.Buffs.ByID(1428, Buff)) then Engine.UseSkill(60); // Если сбили Fake Death
+  if not (User.Buffs.ByID(60, Buff)) then Engine.UseSkill(60); // Если сбили Fake Death
   delay(7000); // Подождать пока моб уйдет
-  if (User.Buffs.ByID(1428, Buff)) then Engine.UseSkill(60); // Fake Death
+  if (User.Buffs.ByID(60, Buff)) then Engine.UseSkill(60); // Fake Death
   delay(100);
   Engine.MoveTo(143704,86824,-5424);
   Engine.MoveTo(144120,87176,-5424);
@@ -114,9 +114,9 @@ begin
   delay(100);
   Engine.UseSkill(60); // Fake Death
   delay(1000);
-  if not (User.Buffs.ByID(1428, Buff)) then Engine.UseSkill(60); // Если сбили Fake Death
+  if not (User.Buffs.ByID(60, Buff)) then Engine.UseSkill(60); // Если сбили Fake Death
   delay(7000); // Подождать пока моб уйдет
-  if (User.Buffs.ByID(1428, Buff)) then Engine.UseSkill(60); // Fake Death
+  if (User.Buffs.ByID(60, Buff)) then Engine.UseSkill(60); // Fake Death
   delay(100);
   MobCheck();
 end;
