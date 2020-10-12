@@ -1,0 +1,166 @@
+{
+Фарм костей в Catacomb of the Apostate + АнтиКапча
+АнтиКапча: github.com/MaelstromDota/AdrenalineScripts/blob/master/gamethrone/anti-captcha.txt
+Требования:
+maelstromdota_apostate.zmap: github.com/MaelstromDota/AdrenalineScripts/blob/master/gamethrone/Catacomb%20of%20the%20Apostate/Settings/maelstromdota_apostate.zmap
+maelstromdota_apostate_1.zmap: github.com/MaelstromDota/AdrenalineScripts/blob/master/gamethrone/Catacomb%20of%20the%20Apostate/Settings/maelstromdota_apostate_1.zmap
+maelstromdota_apostate_2.zmap: github.com/MaelstromDota/AdrenalineScripts/blob/master/gamethrone/Catacomb%20of%20the%20Apostate/Settings/maelstromdota_apostate_2.zmap
+maelstromdota_apostate_spoil.xml: github.com/MaelstromDota/AdrenalineScripts/blob/master/gamethrone/Catacomb%20of%20the%20Apostate/Settings/maelstromdota_apostate_spoil.xml
+Загрузить все требуемые файлы в Settings
+}
+uses SysUtils;
+var
+  room: cardinal = 0;
+  int: integer;
+  mob: tl2npc;
+  mobcheckdelay: cardinal = 5000; // Проверять комнату на наличие мобов каждые ...сек
+  deathcheckdelay: cardinal = 5000; // Проверять на смерть каждые ...сек
+  captchacheckdelay: cardinal = 2000; // Проверять на наличие капчи каждые ...сек
+  captchasoundduration: cardinal = 3500; // Длительность звука
+  captchasound: string = 'PlayerAlarm'; // Звук при капче (Sounds/ваш_звук.wav)
+  deathsound: string = 'Chicken'; // Звук при смерти (Sounds/ваш_звук.wav)
+procedure AntiCaptcha();
+var Captcha:string;
+begin
+  while true do
+    begin
+      if Captcha <> Engine.DlgText then
+        begin
+          Captcha := Engine.DlgText; // Проверка на наличие диалога
+          if (Pos('защиты от ботов', Captcha) <> 0) or (Pos('bot protection', Captcha) <> 0) then // Проверка на содержание диалогового окна
+            begin
+              print('Captcha Found!');
+              PlaySound('Sounds/' + captchasound + '.wav',false);
+              Engine.BlinkWindow(true); // Мигание окна
+            end;
+          Delay(captchasoundduration);
+        end;
+      delay(captchacheckdelay);
+    end;
+end;
+procedure DeathCheck();
+begin
+  while true do
+  begin
+    if (User.dead) then
+    begin
+      PlaySound(ExePath + 'Sounds/' + deathsound + '.wav', false);
+      Engine.BlinkWindow(true);
+      print('Бот умер');
+      Script.Pause;
+    end;
+    delay(deathcheckdelay);
+  end;
+end;
+procedure ToFirstRoom();
+begin
+  Engine.LoadZone('maelstromdota_apostate.zmap');
+  Engine.SetTarget(31116); // Catacomb Gatekeeper
+  delay(1000);
+  Engine.DlgOpen();
+  delay(1000);
+  Engine.DlgSel(1); // Yes, i want to enter
+  delay(6500);
+  Engine.MoveTo(-19208,-250776,-8160);
+  Engine.MoveTo(-19112,-250440,-8160);
+  Engine.MoveTo(-18648,-250456,-8160);
+  Engine.MoveTo(-17928,-250472,-8160);
+  Engine.MoveTo(-16776,-250472,-8160);
+  Engine.MoveTo(-16664,-250680,-8160);
+  delay(100);
+  Engine.UseSkill(60); // Fake Death
+  delay(7000); // Подождать пока моб уйдет
+  Engine.UseSkill(60); // Fake Death
+  delay(100);
+  Engine.MoveTo(-16648,-249976,-8160);
+  Engine.MoveTo(-16600,-249144,-8160);
+  Engine.MoveTo(-16008,-249032,-8160);
+  Engine.MoveTo(-15880,-248728,-8160);
+  Engine.MoveTo(-15896,-248056,-8160);
+  Engine.MoveTo(-16408,-248072,-8160);
+  delay(100);
+  Engine.UseSkill(60); // Fake Death
+  delay(7000); // Подождать пока моб уйдет
+  Engine.UseSkill(60); // Fake Death
+  delay(100);
+  MobCheck();
+end;
+procedure ToFirstRoomCheck();
+begin
+  for int:=0 to npclist.count-1 do begin
+    mob := npclist.items(int);
+    if mob.valid and (mob.id = 31116) then // Поиск телепортера в каты
+    if (user.distto(mob) < 300) then ToFirstRoom(); // Если он рядом, то пробежать в первую комнату
+    if (user.distto(mob) > 300) then
+    begin
+      SecondRoom();
+      Attack(); // Если далеко, то пропустить этот шаг
+    end;
+  end;
+end;
+procedure Attack();
+begin
+  Engine.FaceControl(0, true);
+  delay(mobcheckdelay);
+  CombatCheck();
+end;
+procedure GoToOtherRoom();
+begin
+  if room = 1 then 
+  begin
+    SecondRoom();
+    Attack();
+  end; // Если чар в первой комнате, перейти во вторую
+  if room = 2 then 
+  begin
+    FirstRoom();
+    Attack();
+  end; // Если чар во второй комнате, перейти в первую
+end;
+procedure CombatCheck();
+begin
+  if not User.InCombat then
+  begin
+    Engine.FaceControl(0, false);
+    GoToOtherRoom
+  end;
+  if User.InCombat then Attack();
+end;
+procedure MobCheck();
+begin
+  for int:=0 to npclist.count-1 do begin
+    mob := npclist.items(int);
+    if mob.valid and not mob.dead and mob.attackable then // Поиск живых мобов
+    if (mob.id = 21197) or (mob.id = 21196) then // Поиск нужных нам мобов среди живых
+    if (user.distto(mob) < 1000) then Checked(); // Если они рядом, то начать процедуру "проверено"
+    if (user.distto(mob) > 999) then GoToOtherRoom(); // Если в комнате нет мобов, то перейти в другую
+  end;
+end;
+procedure FirstRoom();
+begin
+  Engine.MoveTo(-15912,-249288,-8160);
+  Engine.MoveTo(-15880,-248104,-8160);
+  Engine.MoveTo(-16856,-248072,-8160);
+  room:=1; // Я в первой комнате!
+  Engine.LoadZone('maelstromdota_apostate_2.zmap');
+end;
+procedure SecondRoom();
+begin
+  Engine.MoveTo(-16856,-248072,-8160);
+  Engine.MoveTo(-15880,-248104,-8160);
+  Engine.MoveTo(-15912,-249288,-8160);
+  room:=2; // Я во второй комнате!
+  Engine.LoadZone('maelstromdota_apostate_1.zmap');
+end;
+begin
+  Engine.FaceControl(0, false);
+  delay(555);
+  Script.NewThread(@AntiCaptcha);
+  delay(100);
+  Script.NewThread(@DeathCheck);
+  delay(555);
+  Engine.LoadConfig('maelstromdota_apostate_spoil.xml');
+  delay(100);
+  ToFirstRoomCheck();
+  delay(-1)
+end.
