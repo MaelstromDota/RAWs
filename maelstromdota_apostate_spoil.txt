@@ -125,17 +125,24 @@ begin
   delay(mobcheckdelay);
   CombatCheck();
 end;
+procedure AttackAfter();
+begin
+  Engine.FaceControl(0, true);
+  delay(45000);
+  Engine.FaceControl(0, false);
+  Attack();
+end;
 procedure GoToOtherRoom();
 begin
   if room = 1 then 
   begin
     SecondRoom();
-    Attack();
+    AttackAfter();
   end; // Если чар в первой комнате, перейти во вторую
   if room = 2 then 
   begin
     FirstRoom();
-    Attack();
+    AttackAfter();
   end; // Если чар во второй комнате, перейти в первую
 end;
 procedure CombatCheck();
