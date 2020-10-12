@@ -164,7 +164,7 @@ begin
     mob := npclist.items(int);
     if mob.valid and not mob.dead and mob.attackable then // Поиск живых мобов
     if (mob.id = 21197) or (mob.id = 21196) then // Поиск нужных нам мобов среди живых
-    if (user.distto(mob) < 1000) then Checked(); // Если они рядом, то начать процедуру "проверено"
+    if (user.distto(mob) < 1000) then Attack(); // Если они рядом, то начать процедуру "проверено"
     if (user.distto(mob) > 999) then GoToOtherRoom(); // Если в комнате нет мобов, то перейти в другую
   end;
 end;
